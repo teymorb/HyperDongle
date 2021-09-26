@@ -48,6 +48,7 @@ def reverse_forward_tunnel(server_port, remote_host, remote_port, transport):
 
 
 if __name__ == "__main__":
+    interactive = False
     if "-i" in sys.argv:
         interactive = True
         sys.argv.remove("-i")
