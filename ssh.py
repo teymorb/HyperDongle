@@ -50,8 +50,7 @@ def reverse_forward_tunnel(server_port, remote_host, remote_port, transport):
 if __name__ == "__main__":
     host = "54.167.166.244" if len(sys.argv) < 2 else sys.argv[1]
     user = "ec2-user" if len(sys.argv) < 3 else sys.argv[2]
-    print(f"{user}@{host}")
-    exit()
+    print(f"Attempting to connect to {user}@{host}")
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname=host, key_filename="../open-key-pair.pem", username=user)
