@@ -48,6 +48,9 @@ def reverse_forward_tunnel(server_port, remote_host, remote_port, transport):
 
 
 if __name__ == "__main__":
+    if "-i" in sys.argv:
+        interactive = True
+        sys.argv.remove("-i")
     host = "54.167.166.244" if len(sys.argv) < 2 else sys.argv[1]
     user = "ec2-user" if len(sys.argv) < 3 else sys.argv[2]
     print(f"Attempting to connect to {user}@{host}")
@@ -58,24 +61,25 @@ if __name__ == "__main__":
 
     # port = client.get_transport().request_port_forward("", 43022)
     # print(f'Port allocated is {port}')
+    client.invoke_shell()
 
-    reverse_forward_tunnel(43022, "localhost", "22", client.get_transport())
-
-    # client.invoke_shell()
-    # print(f"Welcome to {host}")
-    # open = True
-    # command = input(f"{user}@{host}: ")
-    # while open:
-    #     # print(f"Running {command} on remote host {host}")
-    #     (stdin, stdout, stderr) = client.exec_command(command)
-    #     time.sleep(3)
-    #     print("Output of command:\t" + str(stdout.read()))
-    #     print("Errors from command:\t" + str(stderr.read()))
-    #     stdout = stdout.read()
-    #     stderr = stderr.read()
-    #     command = input(f"{user}@{host}: ")
-    #     if command.lower() == "exit" or command.lower() == "logout":
-    #         open = False
-    # print("Logout successful")
-    # client.get_transport().close()
-    # client.close()
+    if not interactive:
+        reverse_forward_tunnel(43022, "localhost", 22, client.get_transport())
+    else:
+        print(f"Welcome to {host}")
+        open_session = True
+        command = input(f"{user}@{host}: ")
+        while open_session:
+            # print(f"Running {command} on remote host {host}")
+            (stdin, stdout, stderr) = client.exec_command(command)
+            time.sleep(3)
+            print("Output of command:\t" + str(stdout.read()))
+            print("Errors from command:\t" + str(stderr.read()))
+            stdout = stdout.read()
+            stderr = stderr.read()
+            command = input(f"{user}@{host}: ")
+            if command.lower() == "exit" or command.lower() == "logout":
+                open_session = False
+        print("Logout successful")
+        client.get_transport().close()
+        client.close()
