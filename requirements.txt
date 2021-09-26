@@ -1,4 +1,3 @@
 paramiko
-socket
 scapy
 wxpython
