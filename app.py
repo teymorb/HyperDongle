@@ -1,6 +1,4 @@
-import threading
 import wx
-from ReverseTunnel import main_func
 
 class HyperPanel(wx.Panel):
     def __init__(self, parent):
@@ -35,8 +33,10 @@ class HyperFrame(wx.Frame):
         self.panel = HyperPanel(self)
         self.Show()
 
-
-if __name__ == '__main__':
+def run():
     app = wx.App()
     frame = HyperFrame()
     app.MainLoop()
+
+if __name__ == '__main__':
+    run()
