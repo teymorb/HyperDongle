@@ -60,8 +60,8 @@ if __name__ == "__main__":
     client.connect(hostname=host, key_filename="../open-key-pair.pem", username=user)
     client.get_transport().open_session()
 
-    # port = client.get_transport().request_port_forward("", 43022)
-    # print(f'Port allocated is {port}')
+    port = client.get_transport().request_port_forward("", 43022)
+    print(f'Port allocated is {port}')
     client.invoke_shell()
 
     if not interactive:
