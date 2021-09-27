@@ -1,6 +1,7 @@
 import scapy.all as scapy
 
-def scan(ip):
+
+def scan(ip):  # Function to scan an IP or range of IPs (of the form X.X.X.X/CIDR) for available devices
     arp_req_frame = scapy.ARP(pdst = ip)
 
     broadcast_ether_frame = scapy.Ether(dst = "ff:ff:ff:ff:ff:ff")
@@ -16,7 +17,7 @@ def scan(ip):
     return result
 
 if __name__ == '__main__':
-    res = scan("192.168.1.1/24")
+    res = scan("192.168.1.0/24")
 
     found = ["IP: "+ r['ip'] + (" " * (15 - len(r['ip']))) + "| MAC: " + r['mac'] for r in res]
 
