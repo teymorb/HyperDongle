@@ -80,7 +80,7 @@ def get_host_port(spec, default_port):
         (host, port) = spec.split(":")
         return host, int(port)
     else:
-        return spec
+        return spec, 22
 
 
 def parse_options():
