@@ -165,7 +165,7 @@ def parse_options():
     remote_host, remote_port = get_host_port(options.remote, SSH_PORT)
     return options, (server_host, server_port), (remote_host, remote_port)
 
-
+# Function to create reverse ssh tunnel available to import into other scripts
 def main_func(user, server, keyfile, remote="localhost:22", port=4000):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
@@ -197,7 +197,7 @@ def main_func(user, server, keyfile, remote="localhost:22", port=4000):
         print("C-c: Port forwarding stopped.")
         sys.exit(0)
 
-
+# Function to create reverse ssh tunnel with several options when this script is run from command line
 def main_cmd():
     options, server, remote = parse_options()
     print(server[0])
@@ -237,5 +237,4 @@ def main_cmd():
 
 
 if __name__ == "__main__":
-    main_func("ec2-user", "54.167.166.244", "../open-key-pair.pem", "localhost:22")
-    # main_cmd()
+    main_cmd() #Create ssh reverse tunnel with options passed through the command line
