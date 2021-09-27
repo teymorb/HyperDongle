@@ -42,8 +42,14 @@ def handler(chan, host, port):
     verbose("Tunnel closed from %r" % (chan.origin_addr,))
 
 
-def reverse_forward_tunnel(server_port, remote_host, remote_port, transport):
-    transport.request_port_forward("", server_port)
+def reverse_forward_tunnel(remote_host, remote_port, transport, server_port=0):
+    try:
+        p = transport.request_port_forward("", server_port)
+        print(f"FORWARDING REQUEST SUCCESSFUL: all traffic from server port {p} will be forwarded to {remote_host}:{remote_port}")
+    except paramiko.ssh_exception.SSHException:
+        print(f"TCP Port forwarding request denied on port {remote_port} of server, allowing server to decide port")
+        p = transport.request_port_forward("", 0)
+        print(f"FORWARDING REQUEST SUCCESSFUL: all traffic from server port {p} will be forwarded to {remote_host}:{remote_port}")
     while True:
         chan = transport.accept(1000)
         if chan is None:
@@ -70,8 +76,11 @@ network. This is similar to the openssh -R option.
 
 def get_host_port(spec, default_port):
     "parse 'hostname:22' into a host and port, with the port optional"
-    (host, port) = spec.split(":")
-    return host, int(port)
+    if ":" in spec:
+        (host, port) = spec.split(":")
+        return host, int(port)
+    else:
+        return spec
 
 
 def parse_options():
@@ -175,14 +184,14 @@ def main_func(user, server, keyfile, remote="localhost:22", port=4000):
         sys.exit(1)
 
     verbose(
-        f"Now forwarding remote port {port} to {remote} ..."
+        f"Now attempting to forward remote port {port} to {remote} ..."
     )
 
     [remote_host, remote_port] = remote.split(":")
 
     try:
         reverse_forward_tunnel(
-            port, remote_host, int(remote_port), client.get_transport()
+            remote_host, int(remote_port), client.get_transport(), server_port=port
         )
     except KeyboardInterrupt:
         print("C-c: Port forwarding stopped.")
@@ -220,7 +229,7 @@ def main_cmd():
 
     try:
         reverse_forward_tunnel(
-            options.port, remote[0], remote[1], client.get_transport()
+            remote[0], remote[1], client.get_transport(), server_port=options.port
         )
     except KeyboardInterrupt:
         print("C-c: Port forwarding stopped.")
@@ -228,5 +237,5 @@ def main_cmd():
 
 
 if __name__ == "__main__":
-    # main_func("ec2-user", "54.167.166.244", "../open-key-pair.pem", "localhost:22")
-    main_cmd()
+    main_func("ec2-user", "54.167.166.244", "../open-key-pair.pem", "localhost:22")
+    # main_cmd()
