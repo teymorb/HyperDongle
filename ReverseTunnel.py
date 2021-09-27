@@ -1,39 +1,9 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2008  Robey Pointer <robeypointer@gmail.com>
-#
-# This file is part of paramiko.
-#
-# Paramiko is free software; you can redistribute it and/or modify it under the
-# terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
-#
-# Paramiko is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with Paramiko; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
-
-"""
-Sample script showing how to do remote port forwarding over paramiko.
-
-This script connects to the requested SSH server and sets up remote port
-forwarding (the openssh -R option) from a remote port through a tunneled
-connection to a destination reachable from the local machine.
-"""
-
 import getpass
-import os
 import socket
 import select
 import sys
 import threading
 from optparse import OptionParser
-
 import paramiko
 
 SSH_PORT = 22
@@ -100,9 +70,8 @@ network. This is similar to the openssh -R option.
 
 def get_host_port(spec, default_port):
     "parse 'hostname:22' into a host and port, with the port optional"
-    args = (spec.split(":", 1) + [default_port])[:2]
-    args[1] = int(args[1])
-    return args[0], args[1]
+    (host, port) = spec.split(":")
+    return host, int(port)
 
 
 def parse_options():
@@ -188,7 +157,39 @@ def parse_options():
     return options, (server_host, server_port), (remote_host, remote_port)
 
 
-def main():
+def main_func(user, server, keyfile, remote="localhost:22", port=4000):
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.WarningPolicy())
+
+    verbose(f"Connecting to ssh host {server}:22 ...")
+    try:
+        client.connect(
+            hostname=server,
+            username=user,
+            key_filename=keyfile,
+            look_for_keys=False
+        )
+    except Exception as e:
+        print(f"*** Failed to connect to {server}:22: {e}")
+        sys.exit(1)
+
+    verbose(
+        f"Now forwarding remote port {port} to {remote} ..."
+    )
+
+    [remote_host, remote_port] = remote.split(":")
+
+    try:
+        reverse_forward_tunnel(
+            port, remote_host, int(remote_port), client.get_transport()
+        )
+    except KeyboardInterrupt:
+        print("C-c: Port forwarding stopped.")
+        sys.exit(0)
+
+
+def main_cmd():
     options, server, remote = parse_options()
     print(server[0])
     password = None
@@ -227,4 +228,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main_func("ec2-user", "54.167.166.244", "../open-key-pair.pem", "localhost:22")
+    main_cmd()
