@@ -2,8 +2,8 @@ import wx
 
 class HyperPanel(wx.Panel):
     def __init__(self, parent):
-        super().__init__(parent, size=(400, 400))
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        super().__init__(parent, size=(600, 600))
+        main_sizer = wx.GridSizer(2, 3, 100, 300)
         self.row_obj_dict = {}
 
         self.list_ctrl = wx.ListCtrl(
@@ -15,7 +15,7 @@ class HyperPanel(wx.Panel):
         main_sizer.Add(self.list_ctrl, 0, wx.ALL | wx.CENTER, 5)
         edit_button = wx.Button(self, label='Scan Local Network For Devices')
         edit_button.Bind(wx.EVT_BUTTON, self.scan_network)
-        main_sizer.Add(edit_button, 0, wx.ALL | wx.CENTER, 5)
+        main_sizer.Add(edit_button, 0, wx.ALL | wx.RIGHT, 5)
         self.SetSizer(main_sizer)
 
     def scan_network(self, event):
@@ -29,7 +29,7 @@ class HyperPanel(wx.Panel):
 
 class HyperFrame(wx.Frame):
     def __init__(self):
-        super().__init__(parent=None, title='Hello World', size=(600, 400))
+        super().__init__(parent=None, title='Network Scanning Interface', size=(600, 600))
         self.panel = HyperPanel(self)
         self.Show()
 
