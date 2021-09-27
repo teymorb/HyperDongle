@@ -1,5 +1,6 @@
 import threading
 import wx
+from ReverseTunnel import main_func
 
 class HyperPanel(wx.Panel):
     def __init__(self, parent):
@@ -34,13 +35,8 @@ class HyperFrame(wx.Frame):
         self.panel = HyperPanel(self)
         self.Show()
 
-def test():
-    print("Are you still there?")
 
 if __name__ == '__main__':
     app = wx.App()
     frame = HyperFrame()
-    app_thread = threading.Thread(target=main_funcc, args=())
-    app_thread.start()
     app.MainLoop()
-    # print("Are you still there?")
